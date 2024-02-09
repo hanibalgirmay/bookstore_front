@@ -15,7 +15,7 @@ const SignUp = () => {
     console.log("====================================");
     // Handle login logic
     await axios
-      .post("http://localhost:3000" + "/auth/signup", data)
+      .post(import.meta.env.VITE_APP_API_URL + "/auth/signup", data)
       .then((res) => {
         console.log(res.data);
         if (res.data.statusCode === 409) {

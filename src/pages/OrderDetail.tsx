@@ -14,7 +14,7 @@ const OrderDetail = () => {
 
   const getOrderData = async () => {
     await axios
-      .get(`http://localhost:3000/orders/${id}`)
+      .get(`${import.meta.env.VITE_APP_API_URL}/orders/${id}`)
       .then((res) => {
         console.log(res.data);
         setOrderData(res.data?.data);
@@ -27,7 +27,7 @@ const OrderDetail = () => {
   const handleRemoveOrder = async () => {
     console.log("cancel order: ", id);
     await axios
-      .delete(`http://localhost:3000/orders/${id}`)
+      .delete(`${import.meta.env.VITE_APP_API_URL}/orders/${id}`)
       .then((res) => {
         console.log(res.data);
         toast.success(res.data.message);

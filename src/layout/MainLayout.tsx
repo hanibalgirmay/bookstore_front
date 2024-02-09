@@ -64,7 +64,7 @@ const MainLayout = () => {
       books: [...cart],
     };
     await axios
-      .post("http://localhost:3000/orders", total_result)
+      .post(`${import.meta.env.VITE_APP_API_URL}/orders`, total_result)
       .then((res) => {
         console.log(res.data);
         toast.success("Order successfully");

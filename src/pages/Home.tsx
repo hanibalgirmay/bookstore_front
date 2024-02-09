@@ -8,6 +8,8 @@ import axios from "axios";
 import { useCartStore } from "../store/cartStore";
 import { Navigate } from "react-router-dom";
 import {
+  MdClear,
+  MdClearAll,
   MdFilter,
   MdFilter5,
   MdFilterAlt,
@@ -15,19 +17,22 @@ import {
   MdSearch,
 } from "react-icons/md";
 import { FormProvider, useForm } from "react-hook-form";
-import { CInput, CProvider } from "../component/form";
+import { CInput, CProvider, CSelect } from "../component/form";
+import Dropdown from "../component/DropDown";
 
 const Home = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const {
     setBooks,
     setHasMore,
     setIsLoading,
     setPage,
+    setLimit,
+    resetBooks,
     limit,
     page,
     books,
     isLoading,
+    filterOption,
     hasMore,
   } = useStore();
 
@@ -38,8 +43,9 @@ const Home = () => {
    * @description
    */
   const getBooks = async () => {
+    setIsLoading(true);
     await axios
-      .get(`http://localhost:3000/book?page=${page}&limit=${limit}`)
+      .get(`${import.meta.env.VITE_APP_API_URL}/book?page=${page}&limit=${limit}`)
       .then((res) => {
         console.log(res.data);
         const newBooks = res.data?.data;
@@ -49,7 +55,8 @@ const Home = () => {
           setHasMore(false);
         }
       })
-      .catch((er) => console.log(er));
+      .catch((er) => console.log(er))
+      .finally(() => setIsLoading(false));
   };
 
   const fetchMoreData = () => {
@@ -66,11 +73,12 @@ const Home = () => {
 
   const handleSearch = async (w: any) => {
     console.log("search value:", w);
-    setBooks([]);
+    resetBooks();
     setPage(0);
+    //setIsLoading(true);
     await axios
       .get(
-        `http://localhost:3000/book?page=${page}&limit=${limit}&searchTitle=${w.search}`
+        `${import.meta.env.VITE_APP_API_URL}/book?page=${page}&limit=${limit}&searchTitle=${w.search}`
       )
       .then((res) => {
         console.log(res.data);
@@ -81,7 +89,36 @@ const Home = () => {
           setHasMore(false);
         }
       })
-      .catch((er) => console.log(er));
+      .catch((er) => console.log(er))
+      .finally(() => setIsLoading(false));
+  };
+  const handleFilter = async (w: string[]) => {
+    console.log("search value:", w);
+    resetBooks();
+    setPage(0);
+    setIsLoading(true);
+    // Convert the array of tags to a comma-separated string
+    const tagsString = w.join(",");
+
+    // Construct the query string
+    const queryParams = new URLSearchParams({
+      tags: tagsString,
+    });
+    await axios
+      .get(
+        `${import.meta.env.VITE_APP_API_URL}/book?page=${page}&limit=${limit}&${queryParams.toString()}`
+      )
+      .then((res) => {
+        console.log(res.data);
+        const newBooks = res.data?.data;
+        setBooks(newBooks);
+
+        if (res.data.data.length === 0) {
+          setHasMore(false);
+        }
+      })
+      .catch((er) => console.log(er))
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
@@ -95,9 +132,32 @@ const Home = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (methods.watch("limit")) {
+      resetBooks();
+      setLimit(Number(methods.watch("limit")));
+      getBooks();
+    }
+  }, [methods.watch("limit")]);
+  useEffect(() => {
+    if (!methods.watch("search")?.length) {
+      getBooks();
+    }
+  }, [methods.watch("search")]);
+
   return (
     <>
       <div className="mb-10 flex gap-5 justify-end items-center">
+        <button
+          className="mt-6 border px-3 py-3 rounded-md flex items-center"
+          onClick={() => {
+            methods.reset();
+            getBooks();
+          }}
+        >
+          <MdClear />
+          Clear
+        </button>
         <FormProvider {...methods}>
           <CProvider handleFormSubmit={methods.handleSubmit(handleSearch)}>
             <div className="flex gap-2 items-center">
@@ -115,18 +175,30 @@ const Home = () => {
               >
                 <MdSearch size={26} />
               </button>
+              <div className="mt-5">
+                <CSelect
+                  name="limit"
+                  options={[5, 15, 25, 50].map((i) => {
+                    return {
+                      value: i,
+                      name: `${i} per page`,
+                    };
+                  })}
+                />
+              </div>
             </div>
           </CProvider>
         </FormProvider>
-        <button className="mt-6 border px-3 py-3 rounded-md">
-          <MdFilterAlt size={26} />
-        </button>
+        <Dropdown
+          handleDropDownForm={(val) => handleFilter(val)}
+          options={filterOption}
+        />
       </div>
       <InfiniteScroll
         dataLength={books?.length}
         next={fetchMoreData}
         className="!overflow-hidden h-full w-full"
-        hasMore={hasMore} 
+        hasMore={hasMore}
         loader={
           <div className="flex justify-center mt-20">
             <div role="status">
@@ -162,6 +234,17 @@ const Home = () => {
                 data={item}
               />
             ))}
+          {books?.length === 0 && <p>No data found</p>}
+          {isLoading && (
+            <div
+              style={{ background: "rgba(0,0,0,0.9)" }}
+              className="z-50 fixed top-0 left-0 h-screen w-full flex items-center justify-center overflow-hidden"
+            >
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900">
+                loading...
+              </div>
+            </div>
+          )}
         </div>
       </InfiniteScroll>
     </>

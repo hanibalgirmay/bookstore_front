@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand';
 
+interface IFilter {
+    value: string;
+    label: string
+}
+
 interface IStore {
     isLoading: boolean,
+    filterOption: IFilter[],
     books: any[];
     limit: number;
     page: number;
@@ -19,6 +25,8 @@ interface IStore {
     setHasMore: (data: boolean) => void;
 
     setUserPoint: (data: number) => void;
+
+    resetBooks: () => void;
 }
 export const useStore = create<IStore>((set) => ({
     isLoading: false,
@@ -28,6 +36,13 @@ export const useStore = create<IStore>((set) => ({
     userPoint: 0,
 
     hasMore: true,
+
+    filterOption: [
+        { value: 'FICTION', label: 'Fiction' },
+        { value: 'NON_FICTION', label: 'Non-Fiction' },
+        { value: 'SCIENCE', label: 'Science' },
+        { value: 'ESSAY', label: 'Essay' },
+    ],
 
     setIsLoading: (load: boolean) => set({ isLoading: load }),
     setHasMore: (data: boolean) => set({ hasMore: data }),
@@ -41,4 +56,8 @@ export const useStore = create<IStore>((set) => ({
         }));
     },
     setUserPoint: (data: any) => set(({ userPoint: data })),
+
+    resetBooks: () => {
+        set({ books: [] });
+    },
 }))

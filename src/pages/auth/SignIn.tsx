@@ -16,7 +16,7 @@ const SignIn = () => {
     console.log("====================================");
     // Handle login logic
     await axios
-      .post("http://localhost:3000" + "/auth/signin", data)
+      .post(import.meta.env.VITE_APP_API_URL + "/auth/signin", data)
       .then((res) => {
         console.log(res.data);
         toast.success("Login successfully");

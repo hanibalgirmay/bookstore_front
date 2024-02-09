@@ -23,10 +23,10 @@ const Card = ({
   return (
     <div
       onClick={handleLink}
-      className="w-full overflow-hidden bg-white rounded-lg shadow-sm hover:shadow-lg hover:cursor-pointer hover:scale-105 ease-in-out transition-all "
+      className="w-full !overflow-hidden bg-white rounded-lg shadow-sm hover:shadow-lg hover:cursor-pointer "
     >
       <img
-        className="object-cover w-full h-80"
+        className="object-cover w-full h-80 hover:scale-105 ease-in-out transition-all"
         src="https://images-na.ssl-images-amazon.com/images/I/51Ga5GuElyL._AC_SX184_.jpg"
         alt="avatar"
       />

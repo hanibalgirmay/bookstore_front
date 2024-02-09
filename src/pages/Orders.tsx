@@ -15,7 +15,7 @@ const Orders = () => {
     if (token) {
       const { username } = decodeJWT(token);
       await axios
-        .get(`http://localhost:3000/orders/user/${username.id}`, {
+        .get(`${import.meta.env.VITE_APP_API_URL}/orders/user/${username.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

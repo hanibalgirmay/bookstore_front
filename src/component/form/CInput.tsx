@@ -2,10 +2,10 @@ import React from "react";
 import { useFormContext } from "react-hook-form";
 
 interface ICInputFieldProp {
-  type?: "text" | "password" | "date" | "number";
-  placeholder: string;
+  type?: "text" | "password" | "date" | "number" | "checkbox";
+  placeholder?: string;
   name: string;
-  label: string;
+  label?: string;
   disabled?: boolean;
 }
 
